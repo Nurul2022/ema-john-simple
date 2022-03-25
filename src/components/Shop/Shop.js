@@ -18,32 +18,43 @@ const Shop = () => {
             })
     }, []);
 
-    useEffect( () =>{
+    useEffect(() => {
         // console.log('Local Storage first line', products)
         const storedCart = getStoredCart();
         // console.log(storedCart)
         const savedCart = [];
-        for(const id in storedCart){
+        for (const id in storedCart) {
             // console.log(id)
-        const addedProduct = products.find(products=> products.id === id);
-        if (addedProduct){
-            const quantity = storedCart[id];
-            addedProduct.quantity = quantity;
-            // console.log(addedProduct); 
-            savedCart.push(addedProduct) ;
-         }
-         
+            const addedProduct = products.find(products => products.id === id);
+            if (addedProduct) {
+                const quantity = storedCart[id];
+                addedProduct.quantity = quantity;
+                // console.log(addedProduct); 
+                savedCart.push(addedProduct);
+            }
+
         }
         setCart(savedCart);
         // console.log('local storage finished')
     }, [products])
 
-    const handleAddToCart = (product) => {
-        // console.log(product);
+    const handleAddToCart = (selectecProduct) => {
+        console.log(selectecProduct); // console.log(product); 
         // do not do this: cart.push(product)
-        const newCart = [...cart, product]
+        let newCart = [];
+        const exists = cart.find(product => product.id === selectecProduct.id);
+        if (exists) {
+            selectecProduct.quantity = 1;
+            newCart = [...cart, selectecProduct];
+        }
+        else {
+            const rest = cart.filter(product => product.id !== selectecProduct.id)
+            exists.quantity = exists.quantity + 1;
+            newCart = [...rest, exists];
+        }
+        // const newCart = [...cart, selectecProduct]
         setCart(newCart);
-        addToDb(product.id)
+        addToDb(selectecProduct.id)
     }
     return (
         <div className='shop-container'>
