@@ -1,60 +1,49 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { addToDb, getStoredCart } from '../../utilities/fakedb';
 import Cart from '../Cart/Cart';
 import Product from '../Product/Product';
-import './Shop.css'
+import './Shop.css';
 
 const Shop = () => {
     const [products, setProducts] = useState([]);
     const [cart, setCart] = useState([]);
 
     useEffect(() => {
-        // console.log('products load before fetch')
         fetch('products.json')
             .then(res => res.json())
-            .then(data => {
-                setProducts(data);
-                // console.log('products loaded')
-            })
+            .then(data => setProducts(data))
     }, []);
 
     useEffect(() => {
-        // console.log('Local Storage first line', products)
         const storedCart = getStoredCart();
-        // console.log(storedCart)
         const savedCart = [];
         for (const id in storedCart) {
-            // console.log(id)
-            const addedProduct = products.find(products => products.id === id);
+            const addedProduct = products.find(product => product.id === id);
             if (addedProduct) {
                 const quantity = storedCart[id];
                 addedProduct.quantity = quantity;
-                // console.log(addedProduct); 
                 savedCart.push(addedProduct);
             }
-
         }
         setCart(savedCart);
-        // console.log('local storage finished')
     }, [products])
 
-    const handleAddToCart = (selectecProduct) => {
-        console.log(selectecProduct); // console.log(product); 
-        // do not do this: cart.push(product)
+    const handleAddToCart = (selectedProduct) => {
+        console.log(selectedProduct);
         let newCart = [];
-        const exists = cart.find(product => product.id === selectecProduct.id);
-        if (exists) {
-            selectecProduct.quantity = 1;
-            newCart = [...cart, selectecProduct];
+        const exists = cart.find(product => product.id === selectedProduct.id);
+        if (!exists) {
+            selectedProduct.quantity = 1;
+            newCart = [...cart, selectedProduct];
         }
         else {
-            const rest = cart.filter(product => product.id !== selectecProduct.id)
+            const rest = cart.filter(product => product.id !== selectedProduct.id);
             exists.quantity = exists.quantity + 1;
             newCart = [...rest, exists];
         }
-        // const newCart = [...cart, selectecProduct]
         setCart(newCart);
-        addToDb(selectecProduct.id)
+        addToDb(selectedProduct.id);
     }
     return (
         <div className='shop-container'>
@@ -68,7 +57,12 @@ const Shop = () => {
                 }
             </div>
             <div className="cart-container">
-                <Cart cart={cart}></Cart>
+                <Cart cart={cart}>
+                    <Link to='/orders'>
+                        <button>Review Order</button>
+
+                    </Link>
+                </Cart>
             </div>
         </div>
     );
